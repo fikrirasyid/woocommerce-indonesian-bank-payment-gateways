@@ -2,23 +2,30 @@
 /**
  * Bank Transfer Payment Gateway
  *
- * Provides a Bank Transfer Payment Gateway. Based on WC_Gateway_Bank BCA class included on WooCommerce.
+ * Provides a Bank Transfer Payment Gateway class template
  *
- * @class 		WC_Gateway_Bank_BCA
+ * @class 		WC_Gateway_Bank
  * @extends		WC_Payment_Gateway
  * @version		2.1.0
  * @package		WooCommerce/Classes/Payment
  * @author 		Fikri Rasyid
  */
-class WC_Gateway_Bank_BCA extends WC_Payment_Gateway {
+class WC_Gateway_Bank extends WC_Payment_Gateway {
 
     /**
      * Constructor for the gateway.
      */
     public function __construct() {
-		$this->id                 = 'bank_bca';
-		$this->name 			  = 'Bank BCA';
+		$this->id                 = 'bank';
+		$this->name 			  = 'Bank';   	
+		
+		$this->init();
+    }	
 
+    /**
+     * Init the class
+     */
+    function init(){
 		$this->icon               = apply_filters( "woocommerce_{$this->id}_icon", '' );
 		$this->has_fields         = false;
 		$this->method_title       = __( $this->name, 'woocommerce-indonesian-bank-payment-gateways' );
@@ -53,8 +60,8 @@ class WC_Gateway_Bank_BCA extends WC_Payment_Gateway {
 
 		// Load the settings.
 		$this->init_form_fields();
-		$this->init_settings();    	
-    }	
+		$this->init_settings(); 
+    }
 
     /**
      * Initialise Gateway Settings Form Fields
@@ -191,7 +198,7 @@ class WC_Gateway_Bank_BCA extends WC_Payment_Gateway {
 	 * @return void
 	 */
 	function account_information(){
-    	echo "<h2 class='order_details_title {$this->id}'>" . __( "Our {$this->name} Account", 'woocommerce-indonesian-bank-payment-gateways' ) . "</h2>" . PHP_EOL;
+    	echo "<h2 class='order_details_title {$this->id}'>" . sprintf( apply_filters( 'wc_gateway_bank_order_details_title', __( "Our %s Account", 'woocommerce-indonesian-bank-payment-gateways' ) ), $this->name ) . "</h2>" . PHP_EOL;
 
     	$bank_account = apply_filters( "woocommerce_{$this->id}_accounts", $this->account_details );
 

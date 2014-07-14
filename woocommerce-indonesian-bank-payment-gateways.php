@@ -24,8 +24,9 @@ class WC_Gateway_Indonesian_Banks_Setup{
 	 * @return void
 	 */
 	function load(){
-		require_once( dirname( __FILE__ ) . '/includes/bank-bca.php' );
-		require_once( dirname( __FILE__ ) . '/includes/bank-mandiri.php' );
+		require_once( dirname( __FILE__ ) . '/includes/class-wc-gateway-bank.php' );
+		require_once( dirname( __FILE__ ) . '/includes/class-wc-gateway-bank-bca.php' );
+		require_once( dirname( __FILE__ ) . '/includes/class-wc-gateway-bank-mandiri.php' );
 	}
 
 	/**
