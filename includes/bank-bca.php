@@ -17,14 +17,12 @@ class WC_Gateway_Bank_BCA extends WC_Payment_Gateway {
      */
     public function __construct() {
 		$this->id                 = 'bank_bca';
-		$this->icon               = apply_filters('woocommerce_bank_bca_icon', '');
-		$this->has_fields         = false;
-		$this->method_title       = __( 'Bank BCA', 'woocommerce-indonesian-bank-payment-gateways' );
-		$this->method_description = __( 'Allows payments using direct bank/wire transfer by Bank BCA.', 'woocommerce-indonesian-bank-payment-gateways' );
+		$this->name 			  = 'Bank BCA';
 
-		// Load the settings.
-		$this->init_form_fields();
-		$this->init_settings();
+		$this->icon               = apply_filters( "woocommerce_{$this->id}_icon", '' );
+		$this->has_fields         = false;
+		$this->method_title       = __( $this->name, 'woocommerce-indonesian-bank-payment-gateways' );
+		$this->method_description = __( "Allows payments using direct bank/wire transfer by {$this->name}.", 'woocommerce-indonesian-bank-payment-gateways' );
 
         // Define user set variables
 		$this->title        = $this->get_option( 'title' );
@@ -32,26 +30,30 @@ class WC_Gateway_Bank_BCA extends WC_Payment_Gateway {
 		$this->instructions = $this->get_option( 'instructions', $this->description );
 
 		// Bank BCA account fields shown on the thanks page and in emails
-		$this->account_details = get_option( 'woocommerce_bank_bca_accounts',
+		$this->account_details = get_option( "woocommerce_{$this->id}_accounts",
 			array(
-				array(
-					'account_name'   => $this->get_option( 'account_name' ),
-					'account_number' => $this->get_option( 'account_number' ),
-					'sort_code'      => $this->get_option( 'sort_code' ),
-					'bank_name'      => $this->get_option( 'bank_name' ),
-					'iban'           => $this->get_option( 'iban' ),
-					'bic'            => $this->get_option( 'bic' )
+				'account_name'   => array( 
+					'label' => __( 'Account Name', 'woocommerce-indonesian-bank-payment-gateways' ), 
+					'value' => $this->get_option( 'account_name' ) 
+				),
+				'account_number' => array(
+					'label' => __( 'Account Number', 'woocommerce-indonesian-bank-payment-gateways' ),
+					'value' => $this->get_option( 'account_number' )
 				)
 			)
 		);
 
 		// Actions
 		add_action( 'woocommerce_update_options_payment_gateways_' . $this->id, array( $this, 'process_admin_options' ) );
-		add_action( 'woocommerce_update_options_payment_gateways_' . $this->id, array( $this, 'save_account_details' ) );
-    	add_action( 'woocommerce_thankyou_bank_bca', array( $this, 'thankyou_page' ) );
+    	add_action( "woocommerce_thankyou_{$this->id}", array( $this, 'thankyou_page' ) );
 
     	// Customer Emails
     	add_action( 'woocommerce_email_before_order_table', array( $this, 'email_instructions' ), 10, 3 );
+
+
+		// Load the settings.
+		$this->init_form_fields();
+		$this->init_settings();    	
     }	
 
     /**
@@ -62,14 +64,14 @@ class WC_Gateway_Bank_BCA extends WC_Payment_Gateway {
 			'enabled' => array(
 				'title'   => __( 'Enable/Disable', 'woocommerce-indonesian-bank-payment-gateways' ),
 				'type'    => 'checkbox',
-				'label'   => __( 'Enable Bank BCA Transfer', 'woocommerce-indonesian-bank-payment-gateways' ),
+				'label'   => __( "Enable {$this->name} Transfer", 'woocommerce-indonesian-bank-payment-gateways' ),
 				'default' => 'yes'
 			),
 			'title' => array(
 				'title'       => __( 'Title', 'woocommerce-indonesian-bank-payment-gateways' ),
 				'type'        => 'text',
 				'description' => __( 'This title will be seen by the customer upon checkout process', 'woocommerce-indonesian-bank-payment-gateways' ),
-				'default'     => __( 'Direct Bank BCA Transfer', 'woocommerce-indonesian-bank-payment-gateways' ),
+				'default'     => __( "Direct {$this->name} Transfer", 'woocommerce-indonesian-bank-payment-gateways' ),
 				'desc_tip'    => true,
 			),
 			'description' => array(
@@ -123,7 +125,7 @@ class WC_Gateway_Bank_BCA extends WC_Payment_Gateway {
      * @return void
      */
     public function email_instructions( $order, $sent_to_admin, $plain_text = false ) {
-    	if ( ! $sent_to_admin && 'bacs' === $order->payment_method && 'on-hold' === $order->status ) {
+    	if ( ! $sent_to_admin && $this->id === $order->payment_method && 'on-hold' === $order->status ) {
 			if ( $this->instructions ) {
 				echo wpautop( wptexturize( $this->instructions ) ) . PHP_EOL;
 			}
@@ -139,41 +141,7 @@ class WC_Gateway_Bank_BCA extends WC_Payment_Gateway {
     		return;
     	}
 
-    	echo '<h2>' . __( 'Our Bank BCA Account', 'woocommerce-indonesian-bank-payment-gateways' ) . '</h2>' . PHP_EOL;
-
-    	$bank_bca_accounts = apply_filters( 'woocommerce_bank_bca_accounts', $this->account_details );
-
-    	if ( ! empty( $bank_bca_accounts ) ) {
-	    	foreach ( $bank_bca_accounts as $bank_bca_account ) {
-	    		echo '<ul class="order_details bank_bca_details">' . PHP_EOL;
-
-	    		$bank_bca_account = (object) $bank_bca_account;
-
-	    		// Bank BCA fields shown on the thanks page and in emails
-				$account_fields = apply_filters( 'woocommerce_bank_bca_account_fields', array(
-					'account_name'=> array(
-						'label' => __( 'Account Name', 'woocommerce-indonesian-bank-payment-gateways' ),
-						'value' => $bank_bca_account->account_name
-					),
-					'account_number'=> array(
-						'label' => __( 'Account Number', 'woocommerce-indonesian-bank-payment-gateways' ),
-						'value' => $bank_bca_account->account_number
-					),
-				), $order_id );
-
-				if ( $bank_bca_account->account_name || $bank_bca_account->bank_name ) {
-					echo '<h3>' . implode( ' - ', array_filter( array( $bank_bca_account->account_name, $bank_bca_account->bank_name ) ) ) . '</h3>' . PHP_EOL;
-				}
-
-	    		foreach ( $account_fields as $field_key => $field ) {
-				    if ( ! empty( $field['value'] ) ) {
-				    	echo '<li class="' . esc_attr( $field_key ) . '">' . esc_attr( $field['label'] ) . ': <strong>' . wptexturize( $field['value'] ) . '</strong></li>' . PHP_EOL;
-				    }
-				}
-
-	    		echo '</ul>';
-	    	}
-	    }
+    	$this->account_information();
     }
 
     /**
@@ -201,4 +169,42 @@ class WC_Gateway_Bank_BCA extends WC_Payment_Gateway {
 			'redirect'	=> $this->get_return_url( $order )
 		);
     }
+
+	/**
+	 * If There are no payment fields show the description if set.
+	 * Override this in your gateway if you have some.
+	 *
+	 * @access public
+	 * @return void
+	 */
+	public function payment_fields() {
+		if ( $description = $this->get_description() ) {
+			echo wpautop( wptexturize( $description ) );
+		}
+
+		$this->account_information();
+	}
+
+	/**
+	 * Display account information
+	 * 
+	 * @return void
+	 */
+	function account_information(){
+    	echo "<h2 class='order_details_title {$this->id}'>" . __( "Our {$this->name} Account", 'woocommerce-indonesian-bank-payment-gateways' ) . "</h2>" . PHP_EOL;
+
+    	$bank_account = apply_filters( "woocommerce_{$this->id}_accounts", $this->account_details );
+
+		$bank_account = (object) $bank_account;
+
+		echo '<ul class="order_details bank_details">' . PHP_EOL;
+
+		foreach ( $bank_account as $field_key => $field ) {
+		    if ( ! empty( $field['value'] ) ) {
+		    	echo '<li class="' . esc_attr( $field_key ) . '"><span class="label">' . esc_attr( $field['label'] ) . '</span>: <strong>' . wptexturize( $field['value'] ) . '</strong></li>' . PHP_EOL;
+		    }
+		}
+
+		echo '</ul>';
+	}
 }
