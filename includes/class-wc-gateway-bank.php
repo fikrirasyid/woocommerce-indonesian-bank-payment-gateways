@@ -32,7 +32,7 @@ class WC_Gateway_Bank extends WC_Payment_Gateway {
 		$this->method_description = __( "Allows payments using direct bank/wire transfer by {$this->name}.", 'woocommerce-indonesian-bank-payment-gateways' );
 
         // Define user set variables
-		$this->title        = $this->get_option( 'title' );
+		$this->title        = $this->get_option( 'title', sprintf( __( 'Direct Transfer %s', 'woocommerce-indonesian-bank-payment-gateways' ), $this->name ) );
 		$this->description  = $this->get_option( 'description' );
 		$this->instructions = $this->get_option( 'instructions', $this->description );
 
