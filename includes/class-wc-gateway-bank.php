@@ -33,19 +33,19 @@ class WC_Gateway_Bank extends WC_Payment_Gateway {
 
         // Define user set variables
 		$this->title        = $this->get_option( 'title', sprintf( __( 'Direct Transfer %s', 'woocommerce-indonesian-bank-payment-gateways' ), $this->name ) );
-		$this->description  = $this->get_option( 'description' );
-		$this->instructions = $this->get_option( 'instructions', $this->description );
+		$this->description  = $this->get_option( 'description', $this->method_description );
+		$this->instructions = $this->get_option( 'instructions', $this->method_description );
 
 		// Bank BCA account fields shown on the thanks page and in emails
 		$this->account_details = get_option( "woocommerce_{$this->id}_accounts",
 			array(
 				'account_name'   => array( 
 					'label' => __( 'Account Name', 'woocommerce-indonesian-bank-payment-gateways' ), 
-					'value' => $this->get_option( 'account_name' ) 
+					'value' => $this->get_option( 'account_name', '-' ) 
 				),
 				'account_number' => array(
 					'label' => __( 'Account Number', 'woocommerce-indonesian-bank-payment-gateways' ),
-					'value' => $this->get_option( 'account_number' )
+					'value' => $this->get_option( 'account_number', '-' )
 				)
 			)
 		);
