@@ -26,6 +26,7 @@ class WC_Gateway_Indonesian_Banks_Setup{
 	function load(){
 		require_once( dirname( __FILE__ ) . '/includes/class-wc-gateway-bank.php' );
 		require_once( dirname( __FILE__ ) . '/includes/class-wc-gateway-bank-bca.php' );
+		require_once( dirname( __FILE__ ) . '/includes/class-wc-gateway-bank-bni.php' );
 		require_once( dirname( __FILE__ ) . '/includes/class-wc-gateway-bank-mandiri.php' );
 	}
 
@@ -38,6 +39,7 @@ class WC_Gateway_Indonesian_Banks_Setup{
 	 */
 	function register( $methods ){
 		$methods[] = 'WC_Gateway_Bank_BCA';
+		$methods[] = 'WC_Gateway_Bank_BNI';
 		$methods[] = 'WC_Gateway_Bank_Mandiri';
 
 		return $methods;
